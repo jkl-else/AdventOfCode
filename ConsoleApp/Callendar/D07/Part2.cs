@@ -4,8 +4,57 @@
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Test");
-            throw new NotImplementedException();
+            const string root = "#root";
+            var input = await ReadFileLinesAsync("Input");
+            var directorySizes = new Dictionary<string, long>
+            {
+                [root] = 0
+            };
+            var currentPath = String.Empty;
+            foreach (var cmd in input)
+            {
+                if (cmd == "$ ls" || cmd.StartsWith("dir "))
+                    continue; // nothing to do
+                if (cmd.StartsWith("$ cd "))
+                {
+                    var path = cmd[5..];
+                    switch (path)
+                    {
+                        case "/":
+                            currentPath = root;
+                            break;
+                        case "..":
+                            {
+                                var index = currentPath.LastIndexOf('\\');
+                                currentPath = index < 0 ? root : currentPath[..index];
+                                break;
+                            }
+                        default:
+                            currentPath = Path.Combine(currentPath, path);
+                            break;
+                    }
+                }
+                else
+                {
+                    var data = cmd.Split(' ');
+                    if (long.TryParse(data[0], out long size))
+                    {
+                        int index;
+                        var path = currentPath;
+                        while ((index = path.LastIndexOf('\\')) > 0)
+                        {
+                            if (!directorySizes.ContainsKey(path))
+                                directorySizes.Add(path, 0);
+                            directorySizes[path] += size;
+                            path = path[..index];
+                        }
+                        directorySizes[root] += size;
+                    }
+                }
+            }
+
+            var requiredSpace = 30000000 - (70000000 - directorySizes[root]);
+            return directorySizes.Where(x => x.Value >= requiredSpace).MinBy(x => x.Value).Value.ToString();
         }
     }
 }

@@ -4,8 +4,13 @@
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Test");
-            throw new NotImplementedException();
+            return (await ReadFileTextAsync("Input"))
+                .Split(Environment.NewLine + Environment.NewLine)
+                .Select(x => x.Split(Environment.NewLine).Select(int.Parse).Sum())
+                .OrderByDescending(x => x)
+                .Take(3)
+                .Sum()
+                .ToString();
         }
     }
 }
