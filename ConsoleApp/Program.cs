@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using ConsoleApp.Calendar.D02;
-
-//<-- Change this to your namespace by date
+using ConsoleApp.Calendar.D03; //<-- Change this to your namespace by date
 
 namespace ConsoleApp;
 
